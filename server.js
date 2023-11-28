@@ -56,6 +56,10 @@ app.post("/api/user/login", (req, res) => {
     });
 });
 
+app.get("/", (req, res) => {
+  res.send("Hello, this is the root path!");
+});
+
 // Routes protected with Passport middleware
 app.get("/api/user/favourites", passport.authenticate("jwt", { session: false }), (req, res) => {
   userService
