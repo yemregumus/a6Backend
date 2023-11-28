@@ -4,11 +4,11 @@ const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const cors = require("cors");
 const dotenv = require("dotenv");
+require("dotenv").config();
 const userService = require("./user-service.js");
-
+const app = express();
 dotenv.config();
 
-const app = express();
 const HTTP_PORT = process.env.PORT || 8080;
 
 // Setup Passport with JwtStrategy
@@ -48,7 +48,6 @@ app.post("/api/user/login", (req, res) => {
   userService
     .checkUser(req.body)
     .then((user) => {
-      // Assuming you have a user object to generate a token
       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
       res.json({ message: "login successful", token: token });
     })
