@@ -11,19 +11,21 @@ dotenv.config();
 
 const HTTP_PORT = process.env.PORT || 8080;
 
+// Setup Passport with JwtStrategy
 const jwtOptions = {
-  jwtFromRequest: ExtractJWT.fromAuthHeaderWithScheme("jwt"),
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.JWT_SECRET,
 };
 
 passport.use(
-  new JwtStrategy(jwtOptions, (jwtPayLoad, next) => {
-    if (jwtPayLoad) {
-      next(null, {
-        _id: jwtPayLoad._id,
-        userName: jwtPayLoad.userName,
-      });
-    } else next(null, false);
+  new JwtStrategy(jwtOptions, (jwtPayload, done) => {
+    // You can perform database queries here to check if the user exists, etc.
+    // For simplicity, we'll assume the user is valid if the payload contains an ID.
+    if (jwtPayload._id) {
+      return done(null, { userId: jwtPayload._id });
+    } else {
+      return done(null, false);
+    }
   })
 );
 
@@ -55,7 +57,7 @@ app.post("/api/user/login", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Server is live1");
+  res.send("Server is live!");
 });
 
 // Routes protected with Passport middleware
