@@ -57,7 +57,7 @@ app.post("/api/user/login", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello, this is the root path!");
+  res.send("Server is live");
 });
 
 // Routes protected with Passport middleware
