@@ -55,7 +55,7 @@ app.post("/api/user/login", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Server is");
+  res.send("Server is live1");
 });
 
 // Routes protected with Passport middleware
