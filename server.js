@@ -1,5 +1,6 @@
 const express = require("express");
 const passport = require("passport");
+const jwt = require("jsonwebtoken");
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const cors = require("cors");
@@ -50,8 +51,8 @@ app.post("/api/user/login", (req, res) => {
       const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
       res.json({ message: "login successful", token: token });
     })
-    .catch((msg) => {
-      res.status(422).json({ message: msg });
+    .catch((error) => {
+      res.status(422).json({ message: "Login failed", error: error.message });
     });
 });
 
