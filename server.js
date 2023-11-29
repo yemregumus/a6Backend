@@ -28,12 +28,18 @@ passport.use(
     } else next(null, false);
   })
 );
+const corsOptions = {
+  origin: "http://localhost:3000", // Replace with your client's origin
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
 
 app.use(express.json());
 app.use(cors());
 app.use(passport.initialize());
 
-app.post("/api/user/register", (req, res) => {
+app.post("/api/user/register", cors(corsOptions), (req, res) => {
   userService
     .registerUser(req.body)
     .then((msg) => {
@@ -44,7 +50,7 @@ app.post("/api/user/register", (req, res) => {
     });
 });
 
-app.post("/api/user/login", (req, res) => {
+app.post("/api/user/login", cors(corsOptions), (req, res) => {
   userService
     .checkUser(req.body)
     .then((user) => {
@@ -56,11 +62,11 @@ app.post("/api/user/login", (req, res) => {
     });
 });
 
-app.get("/", (req, res) => {
+app.get("/", cors(corsOptions), (req, res) => {
   res.send("Server is live!");
 });
 
-app.get("/api/user/favourites", (req, res) => {
+app.get("/api/user/favourites", cors(corsOptions), (req, res) => {
   userService
     .getFavourites(req.user._id)
     .then((data) => {
@@ -71,7 +77,7 @@ app.get("/api/user/favourites", (req, res) => {
     });
 });
 
-app.put("/api/user/favourites/:id", (req, res) => {
+app.put("/api/user/favourites/:id", cors(corsOptions), (req, res) => {
   userService
     .addFavourite(req.user._id, req.params.id)
     .then((data) => {
@@ -82,7 +88,7 @@ app.put("/api/user/favourites/:id", (req, res) => {
     });
 });
 
-app.delete("/api/user/favourites/:id", (req, res) => {
+app.delete("/api/user/favourites/:id", cors(corsOptions), (req, res) => {
   userService
     .removeFavourite(req.user._id, req.params.id)
     .then((data) => {
@@ -93,7 +99,7 @@ app.delete("/api/user/favourites/:id", (req, res) => {
     });
 });
 
-app.get("/api/user/history", (req, res) => {
+app.get("/api/user/history", cors(corsOptions), (req, res) => {
   userService
     .getHistory(req.user._id)
     .then((data) => {
@@ -104,7 +110,7 @@ app.get("/api/user/history", (req, res) => {
     });
 });
 
-app.put("/api/user/history/:id", (req, res) => {
+app.put("/api/user/history/:id", cors(corsOptions), (req, res) => {
   userService
     .addHistory(req.user._id, req.params.id)
     .then((data) => {
@@ -115,7 +121,7 @@ app.put("/api/user/history/:id", (req, res) => {
     });
 });
 
-app.delete("/api/user/history/:id", (req, res) => {
+app.delete("/api/user/history/:id", cors(corsOptions), (req, res) => {
   userService
     .removeHistory(req.user._id, req.params.id)
     .then((data) => {
