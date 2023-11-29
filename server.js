@@ -10,6 +10,17 @@ const userService = require("./user-service.js");
 const app = express();
 dotenv.config();
 
+const corsOptions = {
+  origin: ["http://localhost:3000"],
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(express.json());
+app.use(cors());
+app.use(passport.initialize());
+
 const HTTP_PORT = process.env.PORT || 8080;
 
 // Setup Passport with JwtStrategy
@@ -28,16 +39,6 @@ passport.use(
     } else next(null, false);
   })
 );
-const corsOptions = {
-  origin: "https://sparkling-jersey-bull.cyclic.app",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-  optionsSuccessStatus: 204,
-};
-
-app.use(express.json());
-app.use(cors());
-app.use(passport.initialize());
 
 app.post("/api/user/register", cors(corsOptions), (req, res) => {
   userService
@@ -67,69 +68,105 @@ app.get("/", cors(corsOptions), (req, res) => {
 });
 
 app.get("/api/user/favourites", cors(corsOptions), (req, res) => {
-  userService
-    .getFavourites(req.user._id)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((msg) => {
-      res.status(422).json({ error: msg });
-    });
+  // Check if req.user is defined
+  if (req.user && req.user._id) {
+    userService
+      .getFavourites(req.user._id)
+      .then((data) => {
+        res.json(data);
+      })
+      .catch((msg) => {
+        res.status(422).json({ error: msg });
+      });
+  } else {
+    // Handle the case where req.user or req.user._id is undefined
+    res.status(500).json({ error: "User information not available" });
+  }
 });
 
 app.put("/api/user/favourites/:id", cors(corsOptions), (req, res) => {
-  userService
-    .addFavourite(req.user._id, req.params.id)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((msg) => {
-      res.status(422).json({ error: msg });
-    });
+  // Check if req.user is defined
+  if (req.user && req.user._id) {
+    userService
+      .addFavourite(req.user._id, req.params.id)
+      .then((data) => {
+        res.json(data);
+      })
+      .catch((msg) => {
+        res.status(422).json({ error: msg });
+      });
+  } else {
+    // Handle the case where req.user or req.user._id is undefined
+    res.status(500).json({ error: "User information not available" });
+  }
 });
 
 app.delete("/api/user/favourites/:id", cors(corsOptions), (req, res) => {
-  userService
-    .removeFavourite(req.user._id, req.params.id)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((msg) => {
-      res.status(422).json({ error: msg });
-    });
+  // Check if req.user is defined
+  if (req.user && req.user._id) {
+    userService
+      .removeFavourite(req.user._id, req.params.id)
+      .then((data) => {
+        res.json(data);
+      })
+      .catch((msg) => {
+        res.status(422).json({ error: msg });
+      });
+  } else {
+    // Handle the case where req.user or req.user._id is undefined
+    res.status(500).json({ error: "User information not available" });
+  }
 });
 
 app.get("/api/user/history", cors(corsOptions), (req, res) => {
-  userService
-    .getHistory(req.user._id)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((msg) => {
-      res.status(422).json({ error: msg });
-    });
+  // Check if req.user is defined
+  if (req.user && req.user._id) {
+    userService
+      .getHistory(req.user._id)
+      .then((data) => {
+        res.json(data);
+      })
+      .catch((msg) => {
+        res.status(422).json({ error: msg });
+      });
+  } else {
+    // Handle the case where req.user or req.user._id is undefined
+    res.status(500).json({ error: "User information not available" });
+  }
 });
 
 app.put("/api/user/history/:id", cors(corsOptions), (req, res) => {
-  userService
-    .addHistory(req.user._id, req.params.id)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((msg) => {
-      res.status(422).json({ error: msg });
-    });
+  // Check if req.user is defined
+  if (req.user && req.user._id) {
+    userService
+      .addHistory(req.user._id, req.params.id)
+      .then((data) => {
+        res.json(data);
+      })
+      .catch((msg) => {
+        res.status(422).json({ error: msg });
+      });
+  } else {
+    // Handle the case where req.user or req.user._id is undefined
+    res.status(500).json({ error: "User information not available" });
+  }
 });
 
 app.delete("/api/user/history/:id", cors(corsOptions), (req, res) => {
-  userService
-    .removeHistory(req.user._id, req.params.id)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((msg) => {
-      res.status(422).json({ error: msg });
-    });
+  // Check if req.user is defined
+  if (req.user && req.user._id) {
+    userService
+      .removeHistory(req.user._id, req.params.id)
+      .then((data) => {
+        res.json(data);
+      })
+      .catch((msg) => {
+        res.status(422).json({ error: msg });
+      });
+  } else {
+    // Handle the case where req.user or req.user._id is undefined
+    res.status(500).json({ error: "User information not available" });
+  }
 });
 
 userService
