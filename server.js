@@ -13,25 +13,24 @@ const HTTP_PORT = process.env.PORT || 8080;
 
 // Setup Passport with JwtStrategy
 const jwtOptions = {
-  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("jwt"),
   secretOrKey: process.env.JWT_SECRET,
 };
 
 passport.use(
-  new JwtStrategy(jwtOptions, (jwtPayload, done) => {
-    // You can perform database queries here to check if the user exists, etc.
-    // For simplicity, we'll assume the user is valid if the payload contains an ID.
-    if (jwtPayload._id) {
-      return done(null, { userId: jwtPayload._id });
-    } else {
-      return done(null, false);
-    }
+  new JwtStrategy(jwtOptions, (jwtPayLoad, next) => {
+    if (jwtPayLoad) {
+      next(null, {
+        _id: jwtPayLoad._id,
+        userName: jwtPayLoad.userName,
+      });
+    } else next(null, false);
   })
 );
 
 app.use(express.json());
 app.use(cors());
-app.use(passport.initialize()); // Initialize Passport middleware
+app.use(passport.initialize());
 
 app.post("/api/user/register", (req, res) => {
   userService
@@ -60,10 +59,9 @@ app.get("/", (req, res) => {
   res.send("Server is live!");
 });
 
-// Routes protected with Passport middleware
-app.get("/api/user/favourites", passport.authenticate("jwt", { session: false }), (req, res) => {
+app.get("/api/user/favourites", (req, res) => {
   userService
-    .getFavourites(req.user.userId)
+    .getFavourites(req.user._id)
     .then((data) => {
       res.json(data);
     })
@@ -72,9 +70,9 @@ app.get("/api/user/favourites", passport.authenticate("jwt", { session: false })
     });
 });
 
-app.put("/api/user/favourites/:id", passport.authenticate("jwt", { session: false }), (req, res) => {
+app.put("/api/user/favourites/:id", (req, res) => {
   userService
-    .addFavourite(req.user.userId, req.params.id)
+    .addFavourite(req.user._id, req.params.id)
     .then((data) => {
       res.json(data);
     })
@@ -83,10 +81,9 @@ app.put("/api/user/favourites/:id", passport.authenticate("jwt", { session: fals
     });
 });
 
-// Delete a favorite by ID
-app.delete("/api/user/favourites/:id", passport.authenticate("jwt", { session: false }), (req, res) => {
+app.delete("/api/user/favourites/:id", (req, res) => {
   userService
-    .removeFavourite(req.user.userId, req.params.id)
+    .removeFavourite(req.user._id, req.params.id)
     .then((data) => {
       res.json(data);
     })
@@ -95,10 +92,9 @@ app.delete("/api/user/favourites/:id", passport.authenticate("jwt", { session: f
     });
 });
 
-// Get user history
-app.get("/api/user/history", passport.authenticate("jwt", { session: false }), (req, res) => {
+app.get("/api/user/history", (req, res) => {
   userService
-    .getHistory(req.user.userId)
+    .getHistory(req.user._id)
     .then((data) => {
       res.json(data);
     })
@@ -107,10 +103,9 @@ app.get("/api/user/history", passport.authenticate("jwt", { session: false }), (
     });
 });
 
-// Add an artwork to user history by ID
-app.put("/api/user/history/:id", passport.authenticate("jwt", { session: false }), (req, res) => {
+app.put("/api/user/history/:id", (req, res) => {
   userService
-    .addHistory(req.user.userId, req.params.id)
+    .addHistory(req.user._id, req.params.id)
     .then((data) => {
       res.json(data);
     })
@@ -119,10 +114,9 @@ app.put("/api/user/history/:id", passport.authenticate("jwt", { session: false }
     });
 });
 
-// Remove an artwork from user history by ID
-app.delete("/api/user/history/:id", passport.authenticate("jwt", { session: false }), (req, res) => {
+app.delete("/api/user/history/:id", (req, res) => {
   userService
-    .removeHistory(req.user.userId, req.params.id)
+    .removeHistory(req.user._id, req.params.id)
     .then((data) => {
       res.json(data);
     })
@@ -139,6 +133,6 @@ userService
     });
   })
   .catch((err) => {
-    console.log("Unable to start the server: " + err);
+    console.log("unable to start the server: " + err);
     process.exit();
   });
