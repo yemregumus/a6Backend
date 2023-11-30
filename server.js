@@ -5,7 +5,6 @@ const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const cors = require("cors");
 const dotenv = require("dotenv");
-require("dotenv").config();
 const userService = require("./user-service.js");
 const app = express();
 dotenv.config();
@@ -19,11 +18,11 @@ const jwtOptions = {
 };
 
 passport.use(
-  new JwtStrategy(jwtOptions, (jwtPayLoad, next) => {
-    if (jwtPayLoad) {
+  new JwtStrategy(jwtOptions, (jwtPayload, next) => {
+    if (jwtPayload) {
       next(null, {
-        _id: jwtPayLoad._id,
-        userName: jwtPayLoad.userName,
+        _id: jwtPayload._id,
+        userName: jwtPayload.userName,
       });
     } else next(null, false);
   })
@@ -32,13 +31,16 @@ passport.use(
 const corsOptions = {
   origin: ["https://sparkling-jersey-bull.cyclic.app", "http://localhost:3000"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
+  credentials: true, // include credentials
   optionsSuccessStatus: 204,
 };
 
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use(passport.initialize());
+
+// Middleware for routes requiring authentication
+const authenticateJWT = passport.authenticate("jwt", { session: false });
 
 app.post("/api/user/register", cors(corsOptions), (req, res) => {
   userService
@@ -67,7 +69,7 @@ app.get("/", cors(corsOptions), (req, res) => {
   res.send("Server is live!");
 });
 
-app.get("/api/user/favourites", cors(corsOptions), (req, res) => {
+app.get("/api/user/favourites", cors(corsOptions), authenticateJWT, (req, res) => {
   userService
     .getFavourites(req.user._id)
     .then((data) => {
@@ -78,7 +80,7 @@ app.get("/api/user/favourites", cors(corsOptions), (req, res) => {
     });
 });
 
-app.put("/api/user/favourites/:id", cors(corsOptions), (req, res) => {
+app.put("/api/user/favourites/:id", cors(corsOptions), authenticateJWT, (req, res) => {
   userService
     .addFavourite(req.user._id, req.params.id)
     .then((data) => {
@@ -89,7 +91,7 @@ app.put("/api/user/favourites/:id", cors(corsOptions), (req, res) => {
     });
 });
 
-app.delete("/api/user/favourites/:id", cors(corsOptions), (req, res) => {
+app.delete("/api/user/favourites/:id", cors(corsOptions), authenticateJWT, (req, res) => {
   userService
     .removeFavourite(req.user._id, req.params.id)
     .then((data) => {
@@ -100,7 +102,7 @@ app.delete("/api/user/favourites/:id", cors(corsOptions), (req, res) => {
     });
 });
 
-app.get("/api/user/history", cors(corsOptions), (req, res) => {
+app.get("/api/user/history", cors(corsOptions), authenticateJWT, (req, res) => {
   userService
     .getHistory(req.user._id)
     .then((data) => {
@@ -111,7 +113,7 @@ app.get("/api/user/history", cors(corsOptions), (req, res) => {
     });
 });
 
-app.put("/api/user/history/:id", cors(corsOptions), (req, res) => {
+app.put("/api/user/history/:id", cors(corsOptions), authenticateJWT, (req, res) => {
   userService
     .addHistory(req.user._id, req.params.id)
     .then((data) => {
@@ -122,7 +124,7 @@ app.put("/api/user/history/:id", cors(corsOptions), (req, res) => {
     });
 });
 
-app.delete("/api/user/history/:id", cors(corsOptions), (req, res) => {
+app.delete("/api/user/history/:id", cors(corsOptions), authenticateJWT, (req, res) => {
   userService
     .removeHistory(req.user._id, req.params.id)
     .then((data) => {
