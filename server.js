@@ -10,18 +10,6 @@ const userService = require("./user-service.js");
 const app = express();
 dotenv.config();
 
-const corsOptions = {
-  origin: ["http://localhost:3000"],
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-  optionsSuccessStatus: 204,
-};
-
-app.use(express.json());
-app.use(cors());
-app.use(cors(corsOptions));
-app.use(passport.initialize());
-
 const HTTP_PORT = process.env.PORT || 8080;
 
 // Setup Passport with JwtStrategy
@@ -40,6 +28,18 @@ passport.use(
     } else next(null, false);
   })
 );
+
+const corsOptions = {
+  origin: ["http://localhost:3000"],
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(express.json());
+app.use(cors());
+app.use(cors(corsOptions));
+app.use(passport.initialize());
 
 app.post("/api/user/register", cors(corsOptions), (req, res) => {
   userService
