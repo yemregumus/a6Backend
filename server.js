@@ -57,7 +57,7 @@ app.post("/api/user/login", cors(corsOptions), (req, res) => {
   userService
     .checkUser(req.body)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+      const token = jwt.sign({ _id: user._id, userName: user.userName }, process.env.JWT_SECRET);
       res.json({ message: "login successful", token: token });
     })
     .catch((error) => {
