@@ -42,6 +42,29 @@ app.use(passport.initialize());
 // Middleware for routes requiring authentication
 const authenticateJWT = passport.authenticate("jwt", { session: false });
 
+app.post("/api/user/register", cors(corsOptions), (req, res) => {
+  userService
+    .registerUser(req.body)
+    .then((msg) => {
+      res.json({ message: msg });
+    })
+    .catch((msg) => {
+      res.status(422).json({ message: msg });
+    });
+});
+
+app.post("/api/user/login", cors(corsOptions), (req, res) => {
+  userService
+    .checkUser(req.body)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id, userName: user.userName, favourites: user.favourites, history: user.history }, process.env.JWT_SECRET);
+      res.json({ message: "login successful", token: token });
+    })
+    .catch((error) => {
+      res.status(422).json({ message: "Login failed", error: error.message });
+    });
+});
+
 // Middleware for token refresh
 app.use(async (req, res, next) => {
   try {
@@ -84,29 +107,6 @@ app.post("/api/user/refresh-token", cors(corsOptions), async (req, res) => {
     console.error("Token refresh failed:", error.message);
     res.status(401).json({ error: "Unauthorized" });
   }
-});
-
-app.post("/api/user/register", cors(corsOptions), (req, res) => {
-  userService
-    .registerUser(req.body)
-    .then((msg) => {
-      res.json({ message: msg });
-    })
-    .catch((msg) => {
-      res.status(422).json({ message: msg });
-    });
-});
-
-app.post("/api/user/login", cors(corsOptions), (req, res) => {
-  userService
-    .checkUser(req.body)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id, userName: user.userName, favourites: user.favourites, history: user.history }, process.env.JWT_SECRET);
-      res.json({ message: "login successful", token: token });
-    })
-    .catch((error) => {
-      res.status(422).json({ message: "Login failed", error: error.message });
-    });
 });
 
 app.get("/", cors(corsOptions), (req, res) => {
