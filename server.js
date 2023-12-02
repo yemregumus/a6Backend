@@ -29,7 +29,7 @@ passport.use(
 );
 
 const corsOptions = {
-  origin: ["https://sparkling-jersey-bull.cyclic.app", "http://localhost:3000", "https://assignment6yeg.netlify.app/"],
+  origin: ["https://sparkling-jersey-bull.cyclic.app", "http://localhost:3000", "https://assignment6yeg.netlify.app/api/user"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true, // include credentials
   optionsSuccessStatus: 204,
