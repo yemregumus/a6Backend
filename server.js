@@ -57,56 +57,12 @@ app.post("/api/user/login", cors(corsOptions), (req, res) => {
   userService
     .checkUser(req.body)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id, userName: user.userName, favourites: user.favourites, history: user.history }, process.env.JWT_SECRET);
+      const token = jwt.sign({ _id: user._id, userName: user.userName }, process.env.JWT_SECRET);
       res.json({ message: "login successful", token: token });
     })
     .catch((error) => {
       res.status(422).json({ message: "Login failed", error: error.message });
     });
-});
-
-// Middleware for token refresh
-app.use(async (req, res, next) => {
-  try {
-    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
-    if (token) {
-      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = {
-        _id: decodedToken._id,
-        userName: decodedToken.userName,
-      };
-    }
-    next();
-  } catch (error) {
-    console.error("Token verification failed:", error.message);
-    next();
-  }
-});
-
-// Token refresh endpoint
-app.post("/api/user/refresh-token", cors(corsOptions), async (req, res) => {
-  try {
-    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
-    if (token) {
-      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-      const newToken = jwt.sign(
-        {
-          _id: decodedToken._id,
-          userName: decodedToken.userName,
-          favourites: decodedToken.favourites,
-          history: decodedToken.history,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-      ); // Set the expiration time as needed
-      res.json({ token: newToken });
-    } else {
-      res.status(401).json({ error: "Unauthorized" });
-    }
-  } catch (error) {
-    console.error("Token refresh failed:", error.message);
-    res.status(401).json({ error: "Unauthorized" });
-  }
 });
 
 app.get("/", cors(corsOptions), (req, res) => {
